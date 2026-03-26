@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+.nuxt/
+.output/
+
+# Environment files
+.env
+backend/.env
+frontend/.env
+
+# Build artefacts
+dist/
+*.log
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
