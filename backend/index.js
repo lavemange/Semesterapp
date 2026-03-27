@@ -157,6 +157,39 @@ app.post('/api/requests/toggle', async (req, res) => {
   }
 });
 
+// PATCH /api/employees/:id  { name }
+app.patch('/api/employees/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const name = (req.body.name || '').trim();
+  if (!name) {
+    return res.status(400).json({ error: 'name is required' });
+  }
+  try {
+    const [conflict] = await pool.query(
+      'SELECT id FROM employees WHERE name = ? AND id != ?',
+      [name, id]
+    );
+    if (conflict.length > 0) {
+      return res.status(409).json({ error: 'An employee with that name already exists' });
+    }
+    const [result] = await pool.query(
+      'UPDATE employees SET name = ? WHERE id = ?',
+      [name, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+    const [rows] = await pool.query(
+      'SELECT id, name, created_at FROM employees WHERE id = ?',
+      [id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Health check
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
