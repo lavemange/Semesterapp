@@ -114,6 +114,11 @@
                         @blur="saveName(emp.id)"
                         @keyup.enter="blurInput($event)"
                       />
+                      <button
+                        class="btn-delete"
+                        title="Ta bort person"
+                        @click.stop="confirmDeleteId = emp.id"
+                      >✕</button>
                     </div>
                   </td>
 
@@ -162,6 +167,22 @@
         </div>
       </template>
     </main>
+
+    <!-- ───────────────────────── Delete confirmation modal ─────────────── -->
+    <div v-if="confirmDeleteId !== null" class="modal-overlay" @click.self="confirmDeleteId = null">
+      <div class="modal">
+        <p class="modal-title">⚠️ Ta bort person?</p>
+        <p class="modal-body">
+          Är du säker på att du vill ta bort
+          <strong>{{ employees.find(e => e.id === confirmDeleteId)?.name }}</strong>?
+          Alla semesterdagar för denna person raderas också.
+        </p>
+        <div class="modal-actions">
+          <button class="btn-cancel" @click="confirmDeleteId = null">Avbryt</button>
+          <button class="btn-confirm-delete" @click="deleteEmployee(confirmDeleteId!)">Ja, ta bort</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ───────────────────────── Toast ──────────────────────────────────── -->
     <Transition name="toast">
@@ -232,6 +253,8 @@ const togglingSet  = ref(new Set<string>())
 
 const newName       = ref('')
 const addingEmployee = ref(false)
+
+const confirmDeleteId = ref<number | null>(null)
 
 const editNames  = reactive<Record<number, string>>({})
 const nameErrors = reactive<Record<number, boolean>>({})
@@ -451,6 +474,23 @@ async function addEmployee() {
     showToast('Kunde inte lägga till personen', 'error')
   } finally {
     addingEmployee.value = false
+  }
+}
+
+async function deleteEmployee(empId: number) {
+  try {
+    await $fetch(`/api/employees/${empId}`, { method: 'DELETE' })
+    employees.value = employees.value.filter(e => e.id !== empId)
+    const next = new Set<string>()
+    for (const key of requestedSet.value) {
+      if (!key.startsWith(`${empId}|`)) next.add(key)
+    }
+    requestedSet.value = next
+    showToast('Person borttagen ✓', 'success')
+  } catch (e) {
+    showToast('Kunde inte ta bort personen', 'error')
+  } finally {
+    confirmDeleteId.value = null
   }
 }
 
