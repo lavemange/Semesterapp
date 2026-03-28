@@ -157,6 +157,30 @@ app.post('/api/requests/toggle', async (req, res) => {
   }
 });
 
+// DELETE /api/employees/:id
+app.delete('/api/employees/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.query('DELETE FROM time_off_requests WHERE employee_id = ?', [id]);
+    const [result] = await conn.query('DELETE FROM employees WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      await conn.rollback();
+      conn.release();
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+    await conn.commit();
+    res.json({ deleted: true });
+  } catch (err) {
+    await conn.rollback();
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
+  }
+});
+
 // PATCH /api/employees/:id  { name }
 app.patch('/api/employees/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);

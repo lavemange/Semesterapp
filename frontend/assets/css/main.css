@@ -429,8 +429,88 @@ html, body {
 .toast-enter-from,
 .toast-leave-to { opacity: 0; transform: translateY(8px); }
 
+/* ── Delete button ───────────────────────────────────────────────────────────*/
+.btn-delete {
+  background: transparent;
+  border: none;
+  color: var(--red);
+  cursor: pointer;
+  font-size: .75rem;
+  padding: .1rem .25rem;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity .15s, background .15s;
+  flex-shrink: 0;
+}
+.name-cell-inner:hover .btn-delete { opacity: 1; }
+.btn-delete:hover { background: rgba(192,57,43,.12); }
+
+/* ── Modal ───────────────────────────────────────────────────────────────────*/
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+}
+.modal {
+  background: var(--light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: .75rem;
+  color: var(--dark);
+}
+.modal-body {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+.modal-body strong { color: var(--dark); }
+.modal-actions {
+  display: flex;
+  gap: .75rem;
+  justify-content: flex-end;
+}
+.btn-cancel {
+  padding: .4rem .9rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--dark);
+  font-family: 'DM Mono', monospace;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-cancel:hover { background: var(--stripe); }
+.btn-confirm-delete {
+  padding: .4rem .9rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--red);
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-confirm-delete:hover { opacity: .85; }
+
 /* ── Print ───────────────────────────────────────────────────────────────────*/
 @media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
   .app-header,
   .no-print { display: none !important; }
 
@@ -458,10 +538,32 @@ html, body {
     width: 22px;
   }
 
+  .day-cell {
+    border: 1px solid #999 !important;
+  }
+  .check {
+    font-size: .85rem;
+    font-weight: 900;
+    color: #fff !important;
+  }
+
+  .color-dot {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
   .sticky-col { position: static; }
 
-  .legend { display: none; }
+  .legend { display: flex; }
+  .swatch {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   .toast  { display: none; }
+  .btn-delete { display: none; }
 
   .name-input { border-color: transparent !important; background: transparent !important; }
 }
